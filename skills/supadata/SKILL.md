@@ -45,8 +45,7 @@ Pick the endpoint by what the user wants, **not** by where the URL points:
 
 | User intent | Endpoint | Method |
 |---|---|---|
-| Transcript from any supported video URL | `/transcript` | GET |
-| YouTube transcript only (advanced opts) | `/youtube/transcript` | GET |
+| Transcript from any supported video URL (incl. YouTube) | `/transcript` | GET |
 | Translate a YouTube transcript | `/youtube/transcript/translate` | GET |
 | Batch transcripts (many YouTube videos / a playlist / a channel) | `/youtube/transcript/batch` | POST |
 | Metadata for any social media video/post | `/metadata` | GET |
@@ -61,7 +60,7 @@ Pick the endpoint by what the user wants, **not** by where the URL points:
 | AI-extract structured data from a video | `/extract` | POST |
 | Account / credit usage | `/me` | GET |
 
-> Note: prefer `/metadata` over `/youtube/video` — the latter is deprecated.
+> Note: `/youtube/transcript` and `/youtube/video` are deprecated. Use `/transcript` and `/metadata` — they accept YouTube URLs and work identically for the other platforms.
 
 ## Sync vs async
 
@@ -130,11 +129,18 @@ See [references/video.md](references/video.md) for JSON Schema mode and combined
 
 ## Errors
 
-Supadata returns JSON errors with `code`, `title`, and `documentationUrl`:
+Supadata returns a flat JSON error object: `error` is the machine-readable code, `message` a short title, `details` a longer description, and `documentationUrl` (optional) a link to the error docs:
 
 ```json
-{ "error": { "code": "transcript-unavailable", "title": "...", "documentationUrl": "..." } }
+{
+  "error": "transcript-unavailable",
+  "message": "Transcript Unavailable",
+  "details": "No transcript is available for this video",
+  "documentationUrl": "https://docs.supadata.ai/errors#transcript-unavailable"
+}
 ```
+
+Failed async jobs return `{ "status": "failed", "error": { ...same object... } }` from their results endpoint.
 
 Common codes to handle:
 
@@ -159,7 +165,7 @@ The shell recipes in this skill are best for quick scripts, CI jobs, and cases w
 ## File map
 
 - `references/video.md` — universal endpoints: `/transcript`, `/metadata`, `/extract` (modes, languages, JSON Schema, polling)
-- `references/youtube.md` — YouTube-specific: `/youtube/transcript`, translation, batch transcripts, channel, playlist, channel/playlist videos, search, batch metadata
+- `references/youtube.md` — YouTube-specific: translation, batch transcripts, channel, playlist, channel/playlist videos, search, batch metadata
 - `references/web.md` — `/web/scrape`, `/web/crawl`, `/web/map` and options
 - `scripts/transcript.sh` — fetch a transcript by URL, handle 202 job polling
 - `scripts/scrape.sh` — scrape a URL to Markdown, write to stdout

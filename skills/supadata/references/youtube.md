@@ -1,26 +1,12 @@
 # YouTube-specific endpoints
 
-Endpoints under `/youtube/*` give you finer control than the universal endpoints in [`video.md`](video.md): per-language transcripts, translation, batch jobs across a playlist or channel, channel/playlist metadata, video listings, and search.
+Endpoints under `/youtube/*` give you YouTube-only capabilities on top of the universal endpoints in [`video.md`](video.md): translation, batch jobs across a playlist or channel, channel/playlist metadata, video listings, and search.
 
-If you only need a single transcript or unified video metadata, prefer `/transcript` and `/metadata` from [`video.md`](video.md) — they're simpler and work the same way for non-YouTube platforms.
+For a single transcript or video metadata use `/transcript` and `/metadata` from [`video.md`](video.md) — they accept YouTube URLs (and the other platforms) and support `lang`, `text`, `chunkSize`, and `mode`. The older `/youtube/transcript` and `/youtube/video` endpoints are deprecated; do not use them in new work.
+
+If the requested `lang` is unavailable, `/transcript` falls back to the first available language (the response `lang` field tells you which). HTTP 206 means "transcript unavailable" — for example, no captions exist on the video. Retry `/transcript` with `mode=generate` to force AI transcription.
 
 Auth: `-H "x-api-key: $SUPADATA_API_KEY"`. Base URL: `https://api.supadata.ai/v1`.
-
-## `GET /youtube/transcript`
-
-YouTube-specific transcript fetch. Always synchronous (no job IDs). Same response shape as the universal `/transcript`.
-
-| Query param | Notes |
-|---|---|
-| `url` | YouTube URL |
-| `videoId` | Alternative to `url` — accepts the 11-char video ID directly |
-| `text` | Plain text vs timestamped chunks (default `false`) |
-| `chunkSize` | 50–10000, max characters per chunk (only when `text=false`) |
-| `lang` | ISO 639-1 preferred language |
-
-If the requested `lang` is unavailable, the API silently falls back to the first available language (the response `lang` field tells you which).
-
-HTTP 206 means "transcript unavailable" — for example, no captions exist on the video. Re-issue against `/transcript` (the universal endpoint) with `mode=generate` to force AI transcription.
 
 ## `GET /youtube/transcript/translate`
 
@@ -32,7 +18,7 @@ Translate a YouTube transcript into another language.
 | `lang` (required) | Target ISO 639-1 code |
 | `text`, `chunkSize` | Same as transcript |
 
-Response: `{ "content": ..., "lang": "<target>", "availableLangs": [...] }`.
+Response: `{ "content": ..., "lang": "<target>" }` (no `availableLangs` on translations).
 
 ## `POST /youtube/transcript/batch` — many transcripts at once
 
@@ -65,7 +51,7 @@ Response: `{ "jobId": "..." }`. Poll `GET /youtube/batch/{jobId}`:
   "status": "completed",
   "results": [
     { "videoId": "...", "transcript": { "content": "...", "lang": "en" } },
-    { "videoId": "...", "error": { "code": "transcript-unavailable" } }
+    { "videoId": "...", "errorCode": "transcript-unavailable" }
   ],
   "stats": { "total": 20, "succeeded": 18, "failed": 2 }
 }
@@ -138,11 +124,12 @@ Response: `{ "videoIds": ["...", ...] }`.
 | `type` | `all` \| `video` \| `channel` \| `playlist` \| `movie` (default `all`) |
 | `uploadDate` | `all` \| `hour` \| `today` \| `week` \| `month` \| `year` |
 | `duration` | `all` \| `short` (<4m) \| `medium` (4–20m) \| `long` (>20m) |
-| `features` | comma-separated: `live`, `4k`, `hd`, `subtitles`, `creativeCommons`, `360`, `vr180`, `3d`, `hdr`, `location`, `purchased` |
-| `sortBy` | `relevance` \| `uploadDate` \| `viewCount` \| `rating` |
-| `limit` | 1–50, default 10 |
+| `features` | repeatable/array: `hd`, `subtitles`, `creative-commons`, `3d`, `live`, `4k`, `360`, `location`, `hdr`, `vr180` (videos and movies only) |
+| `sortBy` | `relevance` \| `rating` \| `date` \| `views` (default `relevance`) |
+| `limit` | 1–5000. When set, the API paginates automatically up to that many results; when omitted, one page is returned with a `nextPageToken` |
+| `nextPageToken` | Token from a previous response to fetch the next page (manual pagination) |
 
-Response: `{ "results": [{ "type": "video", "id": "...", "title": "...", ... }] }`.
+Response: `{ "query": "...", "results": [{ "type": "video", "id": "...", "title": "...", ... }], "totalResults": 123, "nextPageToken": "..." }`.
 
 ```bash
 curl -sG "https://api.supadata.ai/v1/youtube/search" \

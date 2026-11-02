@@ -73,7 +73,7 @@ For larger projects:
 
 - **TypeScript/Node SDK:** [`@supadata/js`](https://github.com/supadata-ai/js)
 - **Python SDK:** [`supadata`](https://github.com/supadata-ai/py) on PyPI
-- **MCP server:** [`supadata-ai/mcp`](https://github.com/supadata-ai/mcp) — runs as a Model Context Protocol server for Claude Desktop, Cursor, etc.
+- **AI agents (Claude, ChatGPT, Cursor):** one-click install — [Add to Claude](https://claude.ai/directory/supadata) · [Add to ChatGPT](https://chatgpt.com/plugins/plugin_asdk_app_6ad667a8ae4881919cbe3d48dbc3d759) · [Add to Cursor](https://cursor.com/en-US/install-mcp?name=supadata&config=eyJ1cmwiOiJodHRwczovL2FwaS5zdXBhZGF0YS5haS9tY3AifQ==), then sign in with your Supadata account. Claude Code, Codex and other MCP clients: see the [AI agents guide](https://docs.supadata.ai/integrations/mcp) (MCP server: [`supadata-ai/mcp`](https://github.com/supadata-ai/mcp)).
 - **No-code:** [Zapier](https://docs.supadata.ai/integrations/zapier), [Make](https://docs.supadata.ai/integrations/make), [n8n](https://docs.supadata.ai/integrations/n8n), [Active Pieces](https://docs.supadata.ai/integrations/activepieces)
 
 ## Links

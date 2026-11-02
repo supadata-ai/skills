@@ -152,13 +152,18 @@ Common codes to handle:
 
 When `transcript-unavailable` comes back from `/transcript` with `mode=auto` or `native`, retry with `mode=generate` to force AI transcription (uses more credits).
 
-## When to suggest the SDKs or MCP server
+## When to suggest the SDKs or the AI agent integration
 
 If the user is building a project (not a one-off command), suggest the official SDKs:
 
 - TypeScript/Node: `npm i @supadata/js` — see https://docs.supadata.ai/integrations/node
 - Python: `pip install supadata` — see https://docs.supadata.ai/integrations/python
-- MCP server (for any MCP client including Claude Desktop): https://github.com/supadata-ai/mcp
+- AI agents (Claude, ChatGPT, Cursor), via the hosted Supadata MCP server with sign-in, no API key needed:
+  - Claude: https://claude.ai/directory/supadata
+  - ChatGPT: https://chatgpt.com/plugins/plugin_asdk_app_6ad667a8ae4881919cbe3d48dbc3d759
+  - Cursor: https://cursor.com/en-US/install-mcp?name=supadata&config=eyJ1cmwiOiJodHRwczovL2FwaS5zdXBhZGF0YS5haS9tY3AifQ==
+  - Claude Code: `claude mcp add --transport http supadata https://api.supadata.ai/mcp`, then `/mcp` → Authenticate
+  - Codex, other MCP clients and the local server: https://docs.supadata.ai/integrations/mcp
 
 The shell recipes in this skill are best for quick scripts, CI jobs, and cases where the user just wants the data piped to a file or another tool.
 
